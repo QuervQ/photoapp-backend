@@ -20,6 +20,7 @@ use crate::{
     routes,
 };
 
+/// Axumルーターを構築する。公開ルート（ヘルスチェック・認証・WS）と認証必須ルート（ルーム・アセット・Worldmap・配置）を定義。
 pub fn build_router(state: AppState, ws_allowed_origins: &str) -> Router {
     let request_id_header = HeaderName::from_static("x-request-id");
 

@@ -20,12 +20,14 @@ use crate::{
     },
 };
 
+/// 認証済みユーザー情報を保持する構造体。リクエストExtension経由でハンドラに渡される。
 #[derive(Clone, Debug)]
 pub struct AuthenticatedUser {
     pub user_id: Uuid,
     pub email: Option<String>,
 }
 
+/// Axumミドルウェア: AuthorizationヘッダからJWTを検証し、ユーザー情報をExtensionに注入する。
 pub async fn require_auth(
     State(state): State<AppState>,
     mut req: Request<axum::body::Body>,
@@ -36,6 +38,7 @@ pub async fn require_auth(
     Ok(next.run(req).await)
 }
 
+/// リクエストヘッダーまたはクエリトークンからユーザーIDを抽出する（WebSocketハンドラ用）。
 pub fn extract_user_id_from_headers(
     headers: &HeaderMap,
     jwt_secret: &str,
@@ -45,6 +48,7 @@ pub fn extract_user_id_from_headers(
     Ok(user_id)
 }
 
+/// ヘッダー/クエリトークンからJWTを取得・検証し、user_idとemailを返す内部関数。
 fn extract_user_from_headers(
     headers: &HeaderMap,
     jwt_secret: &str,

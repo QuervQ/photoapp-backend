@@ -1,5 +1,6 @@
 use std::env;
 
+/// アプリケーション設定。環境変数から読み込む。
 pub struct AppConfig {
     pub port: u16,
     pub database_url: String,
@@ -12,6 +13,7 @@ pub struct AppConfig {
 }
 
 impl AppConfig {
+    /// 環境変数から各設定値を読み込んでAppConfigを構築する。
     pub fn from_env() -> Self {
         let port = env::var("PORT")
             .ok()

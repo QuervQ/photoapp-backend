@@ -19,6 +19,7 @@ pub struct SignedUpload {
     pub token: Option<String>,
 }
 
+/// Supabase Storageの署名付きアップロードURLを生成する。指定秒数だけ有効な一時URLを返す。
 pub async fn create_signed_upload_url(
     state: &AppState,
     path: &str,
@@ -75,6 +76,7 @@ pub async fn create_signed_upload_url(
     })
 }
 
+/// Supabase Storageの署名付きダウンロードURLを生成する。指定秒数だけ有効な一時URLを返す。
 pub async fn create_signed_download_url(
     state: &AppState,
     path: &str,
@@ -128,6 +130,7 @@ pub async fn create_signed_download_url(
     Ok(absolutize_storage_url(&state.supabase.url, &url))
 }
 
+/// 相対パスのストレージURLを絶対 URLに変換する。既に絶対ならそのまま返す。
 fn absolutize_storage_url(base: &str, maybe_relative: &str) -> String {
     if maybe_relative.starts_with("http://") || maybe_relative.starts_with("https://") {
         return maybe_relative.to_string();
