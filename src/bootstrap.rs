@@ -15,10 +15,11 @@ pub async fn run() {
     let state = AppState {
         db_pool,
         ws_hub: Arc::new(WsHub::new()),
-        jwt_secret: config.jwt_secret,
+        jwt_secret: config.supabase_jwt_secret,
         http_client: reqwest::Client::new(),
         supabase: SupabaseConfig {
             url: config.supabase_url,
+            anon_key: config.supabase_anon_key,
             service_role_key: config.supabase_service_role_key,
             storage_bucket: config.supabase_storage_bucket,
         },

@@ -20,9 +20,10 @@ use crate::{
     },
 };
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Debug)]
 pub struct AuthenticatedUser {
     pub user_id: Uuid,
+    pub email: Option<String>,
 }
 
 pub async fn require_auth(
@@ -30,8 +31,8 @@ pub async fn require_auth(
     mut req: Request<axum::body::Body>,
     next: Next,
 ) -> Result<Response, ApiError> {
-    let user_id = extract_user_id_from_headers(req.headers(), &state.jwt_secret, None)?;
-    req.extensions_mut().insert(AuthenticatedUser { user_id });
+    let (user_id, email) = extract_user_from_headers(req.headers(), &state.jwt_secret, None)?;
+    req.extensions_mut().insert(AuthenticatedUser { user_id, email });
     Ok(next.run(req).await)
 }
 
@@ -40,11 +41,21 @@ pub fn extract_user_id_from_headers(
     jwt_secret: &str,
     query_token: Option<&str>,
 ) -> Result<Uuid, ApiError> {
+    let (user_id, _) = extract_user_from_headers(headers, jwt_secret, query_token)?;
+    Ok(user_id)
+}
+
+fn extract_user_from_headers(
+    headers: &HeaderMap,
+    jwt_secret: &str,
+    query_token: Option<&str>,
+) -> Result<(Uuid, Option<String>), ApiError> {
     let token = extract_bearer_token(headers).or_else(|| query_token.map(str::to_string));
     let token = token.ok_or((
         StatusCode::UNAUTHORIZED,
         "missing bearer token".to_string(),
     ))?;
     let claims = decode_jwt(&token, jwt_secret)?;
-    parse_user_id(&claims)
+    let user_id = parse_user_id(&claims)?;
+    Ok((user_id, claims.email))
 }

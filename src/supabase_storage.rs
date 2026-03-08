@@ -133,9 +133,10 @@ fn absolutize_storage_url(base: &str, maybe_relative: &str) -> String {
         return maybe_relative.to_string();
     }
 
+    let base = base.trim_end_matches('/');
     if maybe_relative.starts_with('/') {
-        format!("{}{}", base, maybe_relative)
+        format!("{}/storage/v1{}", base, maybe_relative)
     } else {
-        format!("{}/{}", base.trim_end_matches('/'), maybe_relative)
+        format!("{}/storage/v1/{}", base, maybe_relative)
     }
 }

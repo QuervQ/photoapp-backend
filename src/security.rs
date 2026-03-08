@@ -2,15 +2,11 @@ use axum::http::{
     HeaderMap,
     StatusCode,
 };
-use chrono::Utc;
 use jsonwebtoken::{
     Algorithm,
     DecodingKey,
-    EncodingKey,
-    Header,
     Validation,
     decode,
-    encode,
 };
 use serde::{
     Deserialize,
@@ -20,38 +16,22 @@ use uuid::Uuid;
 
 use crate::api_error::ApiError;
 
+/// Supabase Auth JWT claims
 #[derive(Clone, Serialize, Deserialize)]
 pub struct JwtClaims {
     pub sub: String,
-    pub exp: usize,
-    pub iat: usize,
-}
-
-pub fn issue_jwt(user_id: Uuid, secret: &str) -> Result<String, ApiError> {
-    let now = Utc::now().timestamp() as usize;
-    let exp = now + (60 * 60 * 24 * 7);
-    let claims = JwtClaims {
-        sub: user_id.to_string(),
-        iat: now,
-        exp,
-    };
-
-    encode(
-        &Header::default(),
-        &claims,
-        &EncodingKey::from_secret(secret.as_bytes()),
-    )
-    .map_err(|_| {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            "failed to issue token".to_string(),
-        )
-    })
+    pub exp: Option<usize>,
+    pub iat: Option<usize>,
+    pub email: Option<String>,
+    pub role: Option<String>,
+    pub aud: Option<String>,
 }
 
 pub fn decode_jwt(token: &str, secret: &str) -> Result<JwtClaims, ApiError> {
     let mut validation = Validation::new(Algorithm::HS256);
     validation.validate_exp = true;
+    // Supabase sets aud to "authenticated"
+    validation.set_audience(&["authenticated"]);
     decode::<JwtClaims>(
         token,
         &DecodingKey::from_secret(secret.as_bytes()),

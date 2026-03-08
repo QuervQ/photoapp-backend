@@ -25,14 +25,15 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      PORT: 8080
-      RUST_LOG: info
-      DATABASE_URL: postgres://photoapp:photoapp@postgres:5432/photoapp
-      JWT_SECRET: change-me-in-env
-      WS_ALLOWED_ORIGINS: http://localhost:3000,http://127.0.0.1:3000
-      SUPABASE_URL: https://example.supabase.co
-      SUPABASE_SERVICE_ROLE_KEY: replace-me
-      SUPABASE_STORAGE_BUCKET: photos
+      PORT: ${PORT:-8080}
+      RUST_LOG: ${RUST_LOG:-info}
+      DATABASE_URL: ${DATABASE_URL:-postgres://photoapp:photoapp@postgres:5432/photoapp}
+      SUPABASE_JWT_SECRET: ${SUPABASE_JWT_SECRET}
+      WS_ALLOWED_ORIGINS: ${WS_ALLOWED_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      SUPABASE_STORAGE_BUCKET: ${SUPABASE_STORAGE_BUCKET:-photos}
     ports:
       - '8080:8080'
     volumes:

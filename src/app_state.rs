@@ -7,6 +7,7 @@ use uuid::Uuid;
 #[derive(Clone)]
 pub struct SupabaseConfig {
     pub url: String,
+    pub anon_key: String,
     pub service_role_key: String,
     pub storage_bucket: String,
 }
