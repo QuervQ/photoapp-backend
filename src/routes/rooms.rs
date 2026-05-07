@@ -37,6 +37,7 @@ struct RoomRecord {
     created_at: DateTime<Utc>,
 }
 
+/// 新規ルームを作成し、作成者をメンバーとして登録する。
 pub async fn create_room(
     State(state): State<AppState>,
     Extension(user): Extension<AuthenticatedUser>,
@@ -95,6 +96,7 @@ pub async fn create_room(
     ))
 }
 
+/// 認証ユーザーが参加中のルーム一覧を取得する。
 pub async fn list_rooms(
     State(state): State<AppState>,
     Extension(user): Extension<AuthenticatedUser>,
@@ -136,6 +138,7 @@ pub struct JoinRoomResponse {
     room_id: Uuid,
 }
 
+/// 招待コードを使ってルームに参加する。コードの有効期限を検証。
 pub async fn join_room(
     State(state): State<AppState>,
     Extension(user): Extension<AuthenticatedUser>,
@@ -179,6 +182,7 @@ struct InviteRecord {
     expires_at: DateTime<Utc>,
 }
 
+/// ルームの招待コードを生成する（24時間有効）。ルームメンバーのみ実行可。
 pub async fn create_invite(
     State(state): State<AppState>,
     Path(room_id): Path<Uuid>,
@@ -262,6 +266,7 @@ struct PlacementCreatedEvent {
     placement: PlacementResponse,
 }
 
+/// AR配置（プレイスメント）を作成しDBに保存。作成後、WebSocketでルーム全体にブロードキャスト。
 pub async fn create_placement(
     State(state): State<AppState>,
     Path(room_id): Path<Uuid>,
@@ -342,6 +347,7 @@ pub async fn create_placement(
     Ok((StatusCode::CREATED, Json(placement_response)))
 }
 
+/// ルーム内の全配置を取得する。各配置に画像の署名付きダウンロードURLを付与。
 pub async fn list_placements(
     State(state): State<AppState>,
     Path(room_id): Path<Uuid>,
@@ -385,6 +391,7 @@ pub async fn list_placements(
     Ok(Json(results))
 }
 
+/// ユーザーが指定ルームのメンバーであることを検証する。メンバーでなければ403を返す。
 pub async fn ensure_room_member(
     db_pool: &PgPool,
     room_id: Uuid,

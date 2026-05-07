@@ -10,6 +10,7 @@ mod routes;
 mod security;
 mod supabase_storage;
 
+/// アプリケーションのエントリポイント。ログ(tracing)を初期化し、サーバー起動処理を実行する。
 #[tokio::main]
 async fn main() {
     tracing_subscriber::fmt()

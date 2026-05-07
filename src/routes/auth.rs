@@ -63,6 +63,7 @@ struct GoTrueError {
 // Handlers
 // ---------------------------------------------------------------------------
 
+/// 新規ユーザー登録。Supabase GoTrueのsignup APIを呼び、アクセストークン等を返す。
 pub async fn signup(
     State(state): State<AppState>,
     Json(payload): Json<SignupRequest>,
@@ -115,6 +116,7 @@ pub async fn signup(
     ))
 }
 
+/// メール・パスワードでログイン。Supabase GoTrueのtoken APIを呼び、アクセストークン等を返す。
 pub async fn login(
     State(state): State<AppState>,
     Json(payload): Json<SignupRequest>,
@@ -164,6 +166,7 @@ pub async fn login(
     }))
 }
 
+/// リフレッシュトークンでアクセストークンを再取得する。
 pub async fn refresh(
     State(state): State<AppState>,
     Json(payload): Json<RefreshRequest>,
@@ -220,6 +223,7 @@ pub async fn refresh(
     }))
 }
 
+/// 認証済みユーザーの情報（user_id, email）を返す。
 pub async fn me(
     _state: State<AppState>,
     Extension(user): Extension<AuthenticatedUser>,
@@ -234,6 +238,7 @@ pub async fn me(
 // Helpers
 // ---------------------------------------------------------------------------
 
+/// GoTrueのエラーレスポンスからメッセージを抽出するヘルパー。
 fn parse_gotrue_error(body: &str) -> Option<String> {
     let parsed: GoTrueError = serde_json::from_str(body).ok()?;
     parsed.msg.or(parsed.error_description)

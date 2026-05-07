@@ -47,6 +47,7 @@ struct WorldmapRecord {
     storage_path: String,
 }
 
+/// AR WorldMapをルームに紐付けて保存する。バージョンをインクリメントし、WebSocketで更新を通知。
 pub async fn set_worldmap(
     State(state): State<AppState>,
     Path(room_id): Path<Uuid>,
@@ -112,6 +113,7 @@ pub async fn set_worldmap(
     ))
 }
 
+/// ルームの最新WorldMapを取得する。ダウンロードURL付きで返却。
 pub async fn get_worldmap(
     State(state): State<AppState>,
     Path(room_id): Path<Uuid>,

@@ -7,6 +7,7 @@ use crate::{
     router,
 };
 
+/// サーバー起動処理。環境変数読み込み→DB接続→マイグレーション→AppState構築→HTTPサーバー起動。
 pub async fn run() {
     let config = AppConfig::from_env();
     let db_pool = db::connect(&config.database_url).await;

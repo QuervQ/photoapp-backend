@@ -39,6 +39,7 @@ struct AssetRecord {
     storage_path: String,
 }
 
+/// アセット（画像/WorldMap）の署名付きアップロードURLを生成する。DBにassetレコードを作り、Supabase Storageの署名 URLを返す。
 pub async fn create_upload_url(
     State(state): State<AppState>,
     Extension(user): Extension<AuthenticatedUser>,
@@ -82,6 +83,7 @@ pub async fn create_upload_url(
     }))
 }
 
+/// アセットの署名付きダウンロードURLを取得する。アクセス権（作成者または同じルームのメンバー）を確認。
 pub async fn get_download_url(
     State(state): State<AppState>,
     Extension(user): Extension<AuthenticatedUser>,

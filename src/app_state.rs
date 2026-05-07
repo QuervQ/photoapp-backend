@@ -4,6 +4,7 @@ use sqlx::PgPool;
 use tokio::sync::{Mutex, broadcast};
 use uuid::Uuid;
 
+/// Supabase接続に必要な設定値をまとめた構造体。
 #[derive(Clone)]
 pub struct SupabaseConfig {
     pub url: String,
@@ -12,6 +13,7 @@ pub struct SupabaseConfig {
     pub storage_bucket: String,
 }
 
+/// アプリケーション全体で共有される状態。DB接続プール、WebSocketハブ、JWT秘密鍵、HTTPクライアント等を保持。
 #[derive(Clone)]
 pub struct AppState {
     pub db_pool: PgPool,
@@ -21,17 +23,20 @@ pub struct AppState {
     pub supabase: SupabaseConfig,
 }
 
+/// ルームごとのWebSocket配信チャネルを管理するハブ。
 pub struct WsHub {
     rooms: Mutex<HashMap<Uuid, broadcast::Sender<String>>>,
 }
 
 impl WsHub {
+    /// 空のWsHubを生成する。
     pub fn new() -> Self {
         Self {
             rooms: Mutex::new(HashMap::new()),
         }
     }
 
+    /// 指定ルームのbroadcastチャネルを購読する。チャネルが無ければ新規作成。
     pub async fn subscribe(&self, room_id: Uuid) -> broadcast::Receiver<String> {
         let mut rooms = self.rooms.lock().await;
         if let Some(sender) = rooms.get(&room_id) {
@@ -43,6 +48,7 @@ impl WsHub {
         receiver
     }
 
+    /// 指定ルームの全購読者にメッセージをブロードキャストする。
     pub async fn broadcast(&self, room_id: Uuid, payload: String) {
         let mut rooms = self.rooms.lock().await;
         let sender = rooms

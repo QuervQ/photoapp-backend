@@ -1,6 +1,7 @@
 use axum::http::{HeaderValue, Method};
 use tower_http::cors::{Any, CorsLayer};
 
+/// CORSレイヤーを構築する。"*"なら全オリジン許可、それ以外はカンマ区切りで許可リストを設定。
 pub fn build_cors_layer(allowed_origins: &str) -> CorsLayer {
     let mut layer = CorsLayer::new()
         .allow_methods([Method::GET, Method::POST, Method::OPTIONS])

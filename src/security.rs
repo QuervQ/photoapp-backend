@@ -27,6 +27,7 @@ pub struct JwtClaims {
     pub aud: Option<String>,
 }
 
+/// JWTトークンをHS256で検証・デコードし、クレームを返す。aud="authenticated"を検証。
 pub fn decode_jwt(token: &str, secret: &str) -> Result<JwtClaims, ApiError> {
     let mut validation = Validation::new(Algorithm::HS256);
     validation.validate_exp = true;
@@ -41,12 +42,14 @@ pub fn decode_jwt(token: &str, secret: &str) -> Result<JwtClaims, ApiError> {
     .map_err(|_| (StatusCode::UNAUTHORIZED, "invalid token".to_string()))
 }
 
+/// Authorizationヘッダーから"Bearer "プレフィックスを除いてトークン文字列を抽出する。
 pub fn extract_bearer_token(headers: &HeaderMap) -> Option<String> {
     let value = headers.get("authorization")?.to_str().ok()?;
     let token = value.strip_prefix("Bearer ")?;
     Some(token.to_string())
 }
 
+/// JWTのsubクレームをUUIDとしてパースし、ユーザーIDを返す。
 pub fn parse_user_id(claims: &JwtClaims) -> Result<Uuid, ApiError> {
     Uuid::parse_str(&claims.sub).map_err(|_| {
         (
