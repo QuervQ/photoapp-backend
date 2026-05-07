@@ -16,7 +16,15 @@ chrono = { version = "0.4", features = ["serde"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
 tower-http = { version = "0.6", features = ["cors", "trace", "request-id"] }
+argon2 = "0.5"
+rand = "0.8"
+sha2 = "0.10"
+hex = "0.4"
+aws-sdk-s3 = "1"
+aws-credential-types = "1"
+aws-config = { version = "1", features = ["behavior-version-latest"] }
 
 [dev-dependencies]
 futures-util = "0.3"
 tokio-tungstenite = "0.28"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }

@@ -1,15 +1,19 @@
 use std::{collections::HashMap, sync::Arc};
 
+use aws_sdk_s3::Client as S3Client;
 use sqlx::PgPool;
 use tokio::sync::{Mutex, broadcast};
 use uuid::Uuid;
 
 #[derive(Clone)]
-pub struct SupabaseConfig {
-    pub url: String,
-    pub anon_key: String,
-    pub service_role_key: String,
-    pub storage_bucket: String,
+#[allow(dead_code)]
+pub struct StorageConfig {
+    pub endpoint: String,
+    pub region: String,
+    pub access_key: String,
+    pub secret_key: String,
+    pub bucket: String,
+    pub path_style: bool,
 }
 
 #[derive(Clone)]
@@ -17,8 +21,8 @@ pub struct AppState {
     pub db_pool: PgPool,
     pub ws_hub: Arc<WsHub>,
     pub jwt_secret: String,
-    pub http_client: reqwest::Client,
-    pub supabase: SupabaseConfig,
+    pub storage: StorageConfig,
+    pub storage_client: S3Client,
 }
 
 pub struct WsHub {

@@ -73,7 +73,13 @@ pub async fn create_upload_url(
     .await
     .map_err(internal_error)?;
 
-    let signed = supabase_storage::create_signed_upload_url(&state, &storage_path, 600).await?;
+    let signed = supabase_storage::create_signed_upload_url(
+        &state,
+        &storage_path,
+        payload.content_type.trim(),
+        600,
+    )
+    .await?;
 
     Ok(Json(UploadUrlResponse {
         asset_id,

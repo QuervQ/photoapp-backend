@@ -1,12 +1,11 @@
-FROM rust:1.88-bookworm
+FROM rust:1.95-bookworm
 
 WORKDIR /app
 
 COPY Cargo.toml Cargo.lock ./
-RUN mkdir -p src && echo "fn main() {}" > src/main.rs
-RUN cargo build || true
-
 COPY src ./src
+COPY migrations ./migrations
+RUN cargo build
 
 EXPOSE 8080
 CMD ["cargo", "run"]

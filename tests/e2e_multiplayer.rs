@@ -13,6 +13,14 @@ async fn api_flow_signup_room_placement() {
     let client = Client::new();
     let token = signup_and_get_token(&client).await;
 
+    let me = client
+        .get(format!("{BASE_URL}/me"))
+        .bearer_auth(&token)
+        .send()
+        .await
+        .expect("me request failed");
+    assert_eq!(me.status(), 200);
+
     let room = client
         .post(format!("{BASE_URL}/rooms"))
         .bearer_auth(&token)
@@ -127,7 +135,28 @@ async fn signup_and_get_token(client: &Client) -> String {
     assert_eq!(signup.status(), 201);
     let payload: Value = signup.json().await.expect("signup json parse failed");
 
-    payload
+    let refresh_token = payload
+        .get("refresh_token")
+        .and_then(Value::as_str)
+        .expect("refresh_token missing")
+        .to_string();
+
+    let refreshed = client
+        .post(format!("{BASE_URL}/auth/refresh"))
+        .json(&serde_json::json!({
+            "refresh_token": refresh_token
+        }))
+        .send()
+        .await
+        .expect("refresh request failed");
+
+    assert_eq!(refreshed.status(), 200);
+    let refreshed_payload: Value = refreshed
+        .json()
+        .await
+        .expect("refresh json parse failed");
+
+    refreshed_payload
         .get("access_token")
         .and_then(Value::as_str)
         .expect("access_token missing")

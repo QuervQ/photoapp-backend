@@ -7,6 +7,9 @@ use jsonwebtoken::{
     DecodingKey,
     Validation,
     decode,
+    encode,
+    EncodingKey,
+    Header,
 };
 use serde::{
     Deserialize,
@@ -16,22 +19,20 @@ use uuid::Uuid;
 
 use crate::api_error::ApiError;
 
-/// Supabase Auth JWT claims
+/// App JWT claims
 #[derive(Clone, Serialize, Deserialize)]
 pub struct JwtClaims {
     pub sub: String,
-    pub exp: Option<usize>,
-    pub iat: Option<usize>,
+    pub exp: usize,
+    pub iat: usize,
     pub email: Option<String>,
-    pub role: Option<String>,
-    pub aud: Option<String>,
+    pub aud: String,
 }
 
 pub fn decode_jwt(token: &str, secret: &str) -> Result<JwtClaims, ApiError> {
     let mut validation = Validation::new(Algorithm::HS256);
     validation.validate_exp = true;
-    // Supabase sets aud to "authenticated"
-    validation.set_audience(&["authenticated"]);
+    validation.set_audience(&["photoapp"]);
     decode::<JwtClaims>(
         token,
         &DecodingKey::from_secret(secret.as_bytes()),
@@ -39,6 +40,29 @@ pub fn decode_jwt(token: &str, secret: &str) -> Result<JwtClaims, ApiError> {
     )
     .map(|data| data.claims)
     .map_err(|_| (StatusCode::UNAUTHORIZED, "invalid token".to_string()))
+}
+
+pub fn issue_jwt(
+    user_id: Uuid,
+    email: Option<&str>,
+    secret: &str,
+    issued_at: usize,
+    expires_at: usize,
+) -> Result<String, ApiError> {
+    let claims = JwtClaims {
+        sub: user_id.to_string(),
+        exp: expires_at,
+        iat: issued_at,
+        email: email.map(|value| value.to_string()),
+        aud: "photoapp".to_string(),
+    };
+
+    encode(
+        &Header::new(Algorithm::HS256),
+        &claims,
+        &EncodingKey::from_secret(secret.as_bytes()),
+    )
+    .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, "token encode failed".to_string()))
 }
 
 pub fn extract_bearer_token(headers: &HeaderMap) -> Option<String> {
